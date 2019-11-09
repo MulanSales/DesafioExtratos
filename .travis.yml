@@ -5,3 +5,12 @@ dotnet: 2.1.801
 install:
   - dotnet restore
   - dotnet build
+  - cd tools
+  - dotnet restore
+  - dotnet minicover instrument --workdir ../ --assemblies tests/ExtratosApi.Tests/**/bin/*.dll --source src/ExtratosApi/**/*.cs
+  - dotnet minicover reset
+  - cd ..
+  - dotnet test --no-build ./tests/ExtratosApi.Tests/ExtratosApi.Tests.csproj
+  - cd tools
+  - dotnet minicover uninstrument --workdir ../
+  - dotnet minicover coverallsreport --root-path ../ --workdir ../ --service-name "travis-ci" --service-job-id "$TRAVIS_JOB_ID"
