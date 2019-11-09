@@ -1,0 +1,177 @@
+{
+  "SourcePath": "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\",
+  "HitsFile": "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\coverage.hits",
+  "ExtraAssemblies": [
+    "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\tests\\ExtratosApi.Tests\\bin\\Debug\\netcoreapp2.1\\MiniCover.HitServices.dll"
+  ],
+  "Assemblies": [
+    {
+      "Name": "ExtratosApi",
+      "SourceFiles": {
+        "src\\ExtratosApi\\Controllers\\ValuesController.cs": {
+          "Instructions": [
+            {
+              "Id": 12,
+              "StartLine": 17,
+              "EndLine": 17,
+              "StartColumn": 13,
+              "EndColumn": 56,
+              "Class": "ExtratosApi.Controllers.ValuesController",
+              "Method": "Get",
+              "MethodFullName": "Microsoft.AspNetCore.Mvc.ActionResult`1<System.String[]> ExtratosApi.Controllers.ValuesController::Get()",
+              "Instruction": "IL_0001: ldc.i4 2"
+            },
+            {
+              "Id": 13,
+              "StartLine": 24,
+              "EndLine": 24,
+              "StartColumn": 13,
+              "EndColumn": 28,
+              "Class": "ExtratosApi.Controllers.ValuesController",
+              "Method": "Get",
+              "MethodFullName": "Microsoft.AspNetCore.Mvc.ActionResult`1<System.String> ExtratosApi.Controllers.ValuesController::Get(System.Int32)",
+              "Instruction": "IL_0001: ldstr \"value\""
+            }
+          ]
+        },
+        "src\\ExtratosApi\\Program.cs": {
+          "Instructions": [
+            {
+              "Id": 1,
+              "StartLine": 17,
+              "EndLine": 17,
+              "StartColumn": 13,
+              "EndColumn": 54,
+              "Class": "ExtratosApi.Program",
+              "Method": "Main",
+              "MethodFullName": "System.Void ExtratosApi.Program::Main(System.String[])",
+              "Instruction": "IL_0001: ldarg args"
+            },
+            {
+              "Id": 2,
+              "StartLine": 21,
+              "EndLine": 22,
+              "StartColumn": 13,
+              "EndColumn": 39,
+              "Class": "ExtratosApi.Program",
+              "Method": "CreateWebHostBuilder",
+              "MethodFullName": "Microsoft.AspNetCore.Hosting.IWebHostBuilder ExtratosApi.Program::CreateWebHostBuilder(System.String[])",
+              "Instruction": "IL_0000: ldarg args"
+            }
+          ]
+        },
+        "src\\ExtratosApi\\Startup.cs": {
+          "Instructions": [
+            {
+              "Id": 3,
+              "StartLine": 18,
+              "EndLine": 18,
+              "StartColumn": 9,
+              "EndColumn": 53,
+              "Class": "ExtratosApi.Startup",
+              "Method": ".ctor",
+              "MethodFullName": "System.Void ExtratosApi.Startup::.ctor(Microsoft.Extensions.Configuration.IConfiguration)",
+              "Instruction": "IL_0000: ldarg "
+            },
+            {
+              "Id": 4,
+              "StartLine": 20,
+              "EndLine": 20,
+              "StartColumn": 13,
+              "EndColumn": 43,
+              "Class": "ExtratosApi.Startup",
+              "Method": ".ctor",
+              "MethodFullName": "System.Void ExtratosApi.Startup::.ctor(Microsoft.Extensions.Configuration.IConfiguration)",
+              "Instruction": "IL_0008: ldarg "
+            },
+            {
+              "Id": 5,
+              "StartLine": 23,
+              "EndLine": 23,
+              "StartColumn": 47,
+              "EndColumn": 51,
+              "Class": "ExtratosApi.Startup",
+              "Method": "get_Configuration",
+              "MethodFullName": "Microsoft.Extensions.Configuration.IConfiguration ExtratosApi.Startup::get_Configuration()",
+              "Instruction": "IL_0000: ldarg "
+            },
+            {
+              "Id": 6,
+              "StartLine": 28,
+              "EndLine": 28,
+              "StartColumn": 13,
+              "EndColumn": 89,
+              "Class": "ExtratosApi.Startup",
+              "Method": "ConfigureServices",
+              "MethodFullName": "System.Void ExtratosApi.Startup::ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)",
+              "Instruction": "IL_0001: ldarg services"
+            },
+            {
+              "Id": 7,
+              "StartLine": 34,
+              "EndLine": 34,
+              "StartColumn": 13,
+              "EndColumn": 37,
+              "Class": "ExtratosApi.Startup",
+              "Method": "Configure",
+              "MethodFullName": "System.Void ExtratosApi.Startup::Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)",
+              "Instruction": "IL_0001: ldarg env"
+            },
+            {
+              "Id": 8,
+              "StartLine": 36,
+              "EndLine": 36,
+              "StartColumn": 17,
+              "EndColumn": 49,
+              "Class": "ExtratosApi.Startup",
+              "Method": "Configure",
+              "MethodFullName": "System.Void ExtratosApi.Startup::Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)",
+              "Instruction": "IL_000c: ldarg app"
+            },
+            {
+              "Id": 9,
+              "StartLine": 40,
+              "EndLine": 40,
+              "StartColumn": 17,
+              "EndColumn": 31,
+              "Class": "ExtratosApi.Startup",
+              "Method": "Configure",
+              "MethodFullName": "System.Void ExtratosApi.Startup::Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)",
+              "Instruction": "IL_0017: ldarg app"
+            },
+            {
+              "Id": 10,
+              "StartLine": 43,
+              "EndLine": 43,
+              "StartColumn": 13,
+              "EndColumn": 39,
+              "Class": "ExtratosApi.Startup",
+              "Method": "Configure",
+              "MethodFullName": "System.Void ExtratosApi.Startup::Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)",
+              "Instruction": "IL_001f: ldarg app"
+            },
+            {
+              "Id": 11,
+              "StartLine": 44,
+              "EndLine": 44,
+              "StartColumn": 13,
+              "EndColumn": 26,
+              "Class": "ExtratosApi.Startup",
+              "Method": "Configure",
+              "MethodFullName": "System.Void ExtratosApi.Startup::Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)",
+              "Instruction": "IL_0026: ldarg app"
+            }
+          ]
+        }
+      },
+      "Locations": [
+        {
+          "File": "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\tests\\ExtratosApi.Tests\\bin\\Debug\\netcoreapp2.1\\ExtratosApi.dll",
+          "BackupFile": "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\tests\\ExtratosApi.Tests\\bin\\Debug\\netcoreapp2.1\\ExtratosApi.uninstrumented.dll",
+          "PdbFile": "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\tests\\ExtratosApi.Tests\\bin\\Debug\\netcoreapp2.1\\ExtratosApi.pdb",
+          "BackupPdbFile": "C:\\Users\\luanm\\Documents\\Projetos\\DesafioExtratos\\tests\\ExtratosApi.Tests\\bin\\Debug\\netcoreapp2.1\\ExtratosApi.uninstrumented.pdb"
+        }
+      ]
+    }
+  ]
+}

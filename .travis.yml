@@ -3,6 +3,7 @@ solution: DesafioExtratos.sln
 mono: none
 dotnet: 2.1.801
 install:
+script:
   - dotnet restore
   - dotnet build
   - cd tools
