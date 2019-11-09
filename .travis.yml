@@ -1,0 +1,7 @@
+language: csharp
+solution: DesafioExtratos.sln
+mono: none
+dotnet: 2.1.801
+install:
+  - dotnet restore
+  - dotnet build
