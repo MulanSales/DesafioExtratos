@@ -1,5 +1,6 @@
 using System;
 using ExtratosApi.Models.Database;
+using ExtratosApi.Services;
 using MongoDB.Driver;
 using Moq;
 

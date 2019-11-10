@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ExtratosApi.Models.Database;
 using MongoDB.Driver;
 
-namespace ExtratosApi.Models.Database {
+namespace ExtratosApi.Services{
     public class DatabaseServicesSchema<T> where T : ICollectionSchema
     {
         public IMongoCollection<T> _collection; 

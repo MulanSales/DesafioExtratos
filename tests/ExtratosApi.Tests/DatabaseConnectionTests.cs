@@ -21,7 +21,10 @@ namespace ExtratosApi.Tests
             var controller = new ValuesController();
             var result = controller.Get();
 
+            var result2 = controller.Get(5);
+
             Assert.Equal("value1", result.Value[0]);
+            Assert.Equal("value", result2);
         }
 
         [Fact]
