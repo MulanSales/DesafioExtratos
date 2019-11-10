@@ -51,7 +51,6 @@ namespace ExtratosApi
                     SubmitMethod.Post, 
                     SubmitMethod.Options, 
                     SubmitMethod.Delete, 
-                    SubmitMethod.Delete,
                     SubmitMethod.Put
                 };
                 c.SupportedSubmitMethods(methods);
