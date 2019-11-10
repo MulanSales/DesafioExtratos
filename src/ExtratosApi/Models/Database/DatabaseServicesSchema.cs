@@ -5,7 +5,7 @@ using MongoDB.Driver;
 namespace ExtratosApi.Models.Database {
     public class DatabaseServicesSchema<T> where T : ICollectionSchema
     {
-        protected IMongoCollection<T> _collection; 
+        public IMongoCollection<T> _collection; 
 
         private IDatabaseConnectorSettings _settings;
 
