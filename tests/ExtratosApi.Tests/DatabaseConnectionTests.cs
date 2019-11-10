@@ -16,18 +16,6 @@ namespace ExtratosApi.Tests
         }
 
         [Fact]
-        public void Test1()
-        {
-            var controller = new ValuesController();
-            var result = controller.Get();
-
-            var result2 = controller.Get(5);
-
-            Assert.Equal("value1", result.Value[0]);
-            Assert.Equal("value", result2);
-        }
-
-        [Fact]
         public async Task ConnectToDatabase_WithSuccess_Test() {
             DateTime testItemCreationTime = DateTime.Now;
             var testItem = await fixture.dbServicesSchema.CreateItem(new TestClass {CreatedAt = testItemCreationTime, UpdatedAt = DateTime.Now});
