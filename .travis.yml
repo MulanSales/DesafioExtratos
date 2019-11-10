@@ -8,7 +8,7 @@ script:
   - dotnet build
   - cd tools
   - dotnet restore
-  - dotnet minicover instrument --workdir ../ --assemblies tests/ExtratosApi.Tests/**/bin/**/*.dll --sources src/ExtratosApi/?(Controllers|Models)/**/*.cs
+  - dotnet minicover instrument --workdir ../ --assemblies tests/ExtratosApi.Tests/**/bin/**/*.dll --sources src/ExtratosApi/Controllers/**/*.cs --sources src/ExtratosApi/Models/**/*.cs
   - dotnet minicover reset
   - cd ..
   - dotnet test --no-build ./tests/ExtratosApi.Tests/ExtratosApi.Tests.csproj
