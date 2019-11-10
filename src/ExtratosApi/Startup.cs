@@ -1,9 +1,11 @@
 ﻿using System;
+using ExtratosApi.Models.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -36,6 +38,13 @@ namespace ExtratosApi
                     }
                 });
             });
+
+            // Injecting database settings to corresponding object
+            services.Configure<DatabaseConnectorSettings>(Configuration.GetSection(nameof(DatabaseConnectorSettings)));
+            services.AddSingleton<IDatabaseConnectorSettings>(sp => { 
+                return sp.GetRequiredService<IOptions<DatabaseConnectorSettings>>().Value;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
