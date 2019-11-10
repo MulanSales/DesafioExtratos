@@ -32,8 +32,8 @@ namespace ExtratosApi.Models.Database {
         }
 
         public async Task<T> GetById(string id) {
-            IAsyncCursor<T> item = await _collection.FindAsync<T>(item => item.Id == id);
-            return await item.FirstOrDefaultAsync();
+            IAsyncCursor<T> collectionItem = await _collection.FindAsync<T>(item => item.Id == id);
+            return await collectionItem.FirstOrDefaultAsync();
         }
 
         public async void UpdateById(string id, T updatedItem) {
