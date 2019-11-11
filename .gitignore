@@ -6,3 +6,5 @@
 */**/deployHeroku.sh
 */**/Dockerfile
 .vscode
+*/**/nlog.config
+*/**/Logs

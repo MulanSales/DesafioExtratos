@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ExtratosApi.Models;
 using ExtratosApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ExtratosApi.Controllers
 {
@@ -17,8 +18,11 @@ namespace ExtratosApi.Controllers
     {
         private readonly ReleasesService releasesService;
 
-        public ReleasesController(ReleasesService releasesService) {
+        private readonly ILogger<ReleasesController> logger;
+
+        public ReleasesController(ILogger<ReleasesController> logger, ReleasesService releasesService) {
             this.releasesService = releasesService;
+            this.logger = logger;
         }
 
         // GET api/releases
@@ -27,6 +31,7 @@ namespace ExtratosApi.Controllers
         {
             List<Release> releases;
             try {
+                logger.LogInformation("Trying to get releases from database");
                 releases = await releasesService.GetAll();
 
                 if (releases.Count == 0) {
@@ -50,7 +55,7 @@ namespace ExtratosApi.Controllers
         {
         }
 
-        // POST api/values
+        // POST api/releases
         [HttpPost]
         public void Post([FromBody] string value)
         {
