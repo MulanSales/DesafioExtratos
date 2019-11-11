@@ -27,7 +27,7 @@ namespace ExtratosApi.Services{
             return collectionItem;
         }
 
-        public async Task<List<T>> GetAll(string id) {
+        public async Task<List<T>> GetAll() {
             IAsyncCursor<T> itemsList = await _collection.FindAsync(item => true);
             return await itemsList.ToListAsync();
         }

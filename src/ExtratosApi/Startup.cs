@@ -1,5 +1,7 @@
 ﻿using System;
+using ExtratosApi.Extensions;
 using ExtratosApi.Models.Database;
+using ExtratosApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +47,9 @@ namespace ExtratosApi
                 return sp.GetRequiredService<IOptions<DatabaseConnectorSettings>>().Value;
             });
 
+            // Injecting releases service
+            services.AddSingleton<ReleasesService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +78,8 @@ namespace ExtratosApi
             {
                 app.UseHsts();
             }
+
+            app.ConfigureExceptionHandler();
 
             app.UseHttpsRedirection();
             app.UseMvc();
