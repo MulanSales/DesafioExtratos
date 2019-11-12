@@ -215,6 +215,7 @@ namespace ExtratosApi.Controllers
                 throw ex;
             }
 
+            logger.LogInformation("Action PUT for /api/releases returns 200");
             return Ok(updatedRelease);
         }
 
@@ -278,6 +279,7 @@ namespace ExtratosApi.Controllers
                 throw ex;
             }
 
+            logger.LogInformation("Action DELETE for /api/releases returns 200");
             return Ok(new ResponseDetails() {Message = "Lançamento deletado com sucesso", StatusCode = 200});
         }
     }
