@@ -1,10 +1,14 @@
 using System;
 using ExtratosApi.Models.Database;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace ExtratosApi.Models {
 
     public class Establishment : ICollectionSchema
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
         public string Name { get; set; }

@@ -1,19 +1,23 @@
 using System;
 using ExtratosApi.Models.Database;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace ExtratosApi.Models {
 
     public class Release : ICollectionSchema
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
         public DateTime Date { get; set; }
 
         public PaymentMethod PaymentMethod { get; set; }
 
-        public Establishment Establishment { get; set; }
+        public string EstablishmentName { get; set; }
 
-        public Double Amount { get; set; }
+        public Decimal Amount { get; set; }
         
         public DateTime CreatedAt { get; set; }
 
