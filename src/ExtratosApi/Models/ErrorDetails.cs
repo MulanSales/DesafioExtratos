@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ExtratosApi.Models 
 {
-    public class ErrorDetails
+    public class ResponseDetails 
     {
         public int StatusCode { get; set; }
 

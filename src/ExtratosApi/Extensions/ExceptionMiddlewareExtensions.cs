@@ -18,7 +18,7 @@ namespace ExtratosApi.Extensions
                     IExceptionHandlerFeature contextFeature = context.Features.Get<IExceptionHandlerFeature>();
 
                     if (contextFeature != null) {
-                        await context.Response.WriteAsync(new ErrorDetails() {
+                        await context.Response.WriteAsync(new ResponseDetails() {
                             StatusCode = context.Response.StatusCode,
                             Message= "Internal Server Error. We're currently working to fix it."
                         }.ToString());

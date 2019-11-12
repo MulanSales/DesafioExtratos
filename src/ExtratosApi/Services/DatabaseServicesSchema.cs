@@ -41,8 +41,8 @@ namespace ExtratosApi.Services{
             return await _collection.ReplaceOneAsync(item => item.Id == id, updatedItem);
         }
 
-        public async void RemoveById(string id) {
-            await _collection.DeleteOneAsync(item => item.Id == id);
+        public async Task<DeleteResult> RemoveById(string id) {
+            return await _collection.DeleteOneAsync(item => item.Id == id);
         }
 
     }

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using ExtratosApi.Models;
 using ExtratosApi.Models.Request;
 using ExtratosApi.Services;
-using ExtratosApi.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using FluentValidation;
 using System.Text.RegularExpressions;
 
 namespace ExtratosApi.Controllers
@@ -48,7 +44,7 @@ namespace ExtratosApi.Controllers
                 releases = await releasesService.GetAll();
 
                 if (releases.Count == 0) {
-                    var errorDetails = new ErrorDetails() {
+                    var errorDetails = new ResponseDetails() {
                        Message = "Não foi possível encontrar nenhum Lançamento no banco de dados.",
                        StatusCode = 404
                    };
@@ -71,7 +67,7 @@ namespace ExtratosApi.Controllers
         /// <remarks>
         /// Sample request:
         ///
-        ///     POST api/releases/5dcaad2526235a471cfcccaf
+        ///     POST api/releases
         ///     {
         ///        "date": "05/05/2019",
         ///        "paymentMethod": "Credit",
@@ -99,7 +95,7 @@ namespace ExtratosApi.Controllers
                 var establishment = await establishmentService.GetByName(body.EstablishmentName);
 
                 if (establishment == null) {
-                    var errorDetails = new ErrorDetails() {
+                    var errorDetails = new ResponseDetails() {
                         Message = "Não foi possível encontrar nenhum estabelecimento associado com esse nome.",
                         StatusCode = 404
                     };
@@ -127,13 +123,13 @@ namespace ExtratosApi.Controllers
             return Created("", resultRelease);
         }
 
-       /// <summary>
+        /// <summary>
         /// Updates an old release
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     PUT api/releases/
+        ///     PUT api/releases/5dcaad2526235a471cfcccaf
         ///     {
         ///        "date": "06/05/2019",
         ///        "paymentMethod": "Credit",
@@ -146,17 +142,19 @@ namespace ExtratosApi.Controllers
         /// <response code="200">Returns the updated release</response>
         /// <response code="400">If the request is not in correct format</response>    
         /// <response code="404">If the resource is not in the database</response>    
+        /// <response code="406">If the resource is not acceptable</response>    
         /// <response code="500">If an error in server side happens</response>    
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Release>> Put(string id, [FromBody] ReleaseRequest body)
         {
             // Validating id
             if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
-                var errorDetails = new ErrorDetails() {
+                var errorDetails = new ResponseDetails() {
                         Message = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
                         StatusCode = 400
                     };
@@ -170,7 +168,7 @@ namespace ExtratosApi.Controllers
                 var actualRelease = await releasesService.GetById(id);
 
                 if (actualRelease == null) {
-                     var errorDetails = new ErrorDetails() {
+                     var errorDetails = new ResponseDetails() {
                         Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
                         StatusCode = 404
                     };
@@ -182,7 +180,7 @@ namespace ExtratosApi.Controllers
                 var establishment = await establishmentService.GetByName(body.EstablishmentName);
 
                 if (establishment == null) {
-                    var errorDetails = new ErrorDetails() {
+                    var errorDetails = new ResponseDetails() {
                         Message = "Não foi possível encontrar nenhum estabelecimento associado com esse nome.",
                         StatusCode = 404
                     };
@@ -204,7 +202,7 @@ namespace ExtratosApi.Controllers
                 var replaceResult = await releasesService.UpdateById(id, updatedRelease);
 
                 if (!replaceResult.IsAcknowledged) {
-                    var errorDetails = new ErrorDetails() {
+                    var errorDetails = new ResponseDetails() {
                         Message = "Não foi possível realizar a atualização seguindo os valores passados.",
                         StatusCode = 406
                     };
@@ -220,10 +218,67 @@ namespace ExtratosApi.Controllers
             return Ok(updatedRelease);
         }
 
-        // DELETE api/values/5
+        /// <summary>
+        /// Deletes a release
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/releases/5dcaad2526235a471cfcccaf
+        ///
+        /// </remarks>
+        /// <returns>The response message with success</returns>
+        /// <response code="200">Returns sucess response message</response>
+        /// <response code="400">If the request is not in correct format</response>    
+        /// <response code="404">If the resource is not in the database</response>    
+        /// <response code="406">If the resource is not acceptable</response>    
+        /// <response code="500">If an error in server side happens</response>    
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ResponseDetails>> Delete(string id)
         {
+            if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
+                var errorDetails = new ResponseDetails() {
+                        Message = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
+                        StatusCode = 400
+                    };
+                    logger.LogInformation("Error: " + errorDetails.Message);
+                    return BadRequest(errorDetails);
+            }
+
+            try {
+                logger.LogInformation("Trying to get a release with given id");
+                var actualRelease = await releasesService.GetById(id);
+
+                if (actualRelease == null) {
+                     var errorDetails = new ResponseDetails() {
+                        Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
+                        StatusCode = 404
+                    };
+                    logger.LogInformation("Error: " + errorDetails.Message);
+                    return NotFound(errorDetails);
+                }
+
+                var deleteResult = await releasesService.RemoveById(id);
+                if(!deleteResult.IsAcknowledged) {
+                    var errorDetails = new ResponseDetails() {
+                        Message = "Não foi possível realizar a atualização seguindo os valores passados.",
+                        StatusCode = 406
+                    };
+                    logger.LogInformation("Error: " + errorDetails.Message);
+                    return StatusCode(406, errorDetails);
+                }
+
+            } catch(Exception ex) {
+                logger.LogInformation("Exception: " + ex.Message);
+                throw ex;
+            }
+
+            return Ok(new ResponseDetails() {Message = "Lançamento deletado com sucesso", StatusCode = 200});
         }
     }
 }
