@@ -27,7 +27,7 @@ namespace ExtratosApi.Services{
             return collectionItem;
         }
 
-        public async Task<List<T>> GetAll(string id) {
+        public async Task<List<T>> GetAll() {
             IAsyncCursor<T> itemsList = await _collection.FindAsync(item => true);
             return await itemsList.ToListAsync();
         }
@@ -37,12 +37,12 @@ namespace ExtratosApi.Services{
             return await collectionItem.FirstOrDefaultAsync();
         }
 
-        public async void UpdateById(string id, T updatedItem) {
-            await _collection.ReplaceOneAsync(item => item.Id == id, updatedItem);
+        public async Task<ReplaceOneResult> UpdateById(string id, T updatedItem) {
+            return await _collection.ReplaceOneAsync(item => item.Id == id, updatedItem);
         }
 
-        public async void RemoveById(string id) {
-            await _collection.DeleteOneAsync(item => item.Id == id);
+        public async Task<DeleteResult> RemoveById(string id) {
+            return await _collection.DeleteOneAsync(item => item.Id == id);
         }
 
     }

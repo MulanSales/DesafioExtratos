@@ -1,5 +1,10 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using ExtratosApi.Extensions;
 using ExtratosApi.Models.Database;
+using ExtratosApi.Services;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace ExtratosApi
@@ -23,7 +29,10 @@ namespace ExtratosApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .AddJsonOptions(opt => opt.SerializerSettings.Converters.Add(new StringEnumConverter()))
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>())
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             // Adding Swagger Generator Service
             services.AddSwaggerGen(c => {
@@ -37,6 +46,11 @@ namespace ExtratosApi
                         Url = new Uri("https://github.com/MulanSales")
                     }
                 });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
 
             // Injecting database settings to corresponding object
@@ -44,6 +58,10 @@ namespace ExtratosApi
             services.AddSingleton<IDatabaseConnectorSettings>(sp => { 
                 return sp.GetRequiredService<IOptions<DatabaseConnectorSettings>>().Value;
             });
+
+            // Injecting releases service
+            services.AddSingleton<ReleasesService>();
+            services.AddSingleton<EstablishmentService>();
 
         }
 
@@ -73,6 +91,8 @@ namespace ExtratosApi
             {
                 app.UseHsts();
             }
+
+            app.ConfigureExceptionHandler();
 
             app.UseHttpsRedirection();
             app.UseMvc();
