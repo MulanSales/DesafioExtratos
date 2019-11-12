@@ -26,8 +26,18 @@ namespace ExtratosApi.Controllers
             this.establishmentService = establishmentService;
         }
 
+        /// <summary>
+        /// Returns an array of releases
+        /// </summary>
+        /// <returns>An array of all releases inserted in the past</returns>
+        /// <response code="200">Returns the array</response>
+        /// <response code="404">If can't find any release</response>    
+        /// <response code="500">If an error in server side happens</response> 
         // GET api/releases
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<Release>>> Get()
         {
             List<Release> releases;
@@ -40,13 +50,16 @@ namespace ExtratosApi.Controllers
                        Message = "Não foi possível encontrar nenhum Lançamento no banco de dados.",
                        StatusCode = 404
                    };
+                   logger.LogInformation("Error: " + errorDetails.Message);
                   return NotFound(errorDetails);
                }
             } 
             catch (Exception ex) {
+                logger.LogInformation("Exception: " + ex.Message);
                 throw ex;
             }
 
+            logger.LogInformation("Action GET for /api/releases returns 200");
             return Ok(releases);
         }
 
@@ -61,7 +74,6 @@ namespace ExtratosApi.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        ///
         ///     POST api/releases/
         ///     {
         ///        "date": "05/05/2019",
@@ -69,11 +81,11 @@ namespace ExtratosApi.Controllers
         ///        "establishmentName": "Padaria Stn"
         ///        "amount": 34.88
         ///     }
-        ///
         /// </remarks>
         /// <returns>The newly release created</returns>
         /// <response code="201">Returns the newly created release</response>
-        /// <response code="400">If the item is null</response>    
+        /// <response code="400">If the request is not in correct format</response>    
+        /// <response code="404">If the resource is not in the database</response>    
         /// <response code="500">If an error in server side happens</response>    
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -108,10 +120,11 @@ namespace ExtratosApi.Controllers
                 resultRelease = await releasesService.CreateItem(newRelease);
 
             } catch(Exception ex) {
+                logger.LogInformation("Exception: " + ex.Message);
                 throw ex;
             }
 
-            logger.LogInformation("Release created with success and returned");
+            logger.LogInformation("Action POST for /api/releases returns 201");
             return Created("", resultRelease);
         }
 
