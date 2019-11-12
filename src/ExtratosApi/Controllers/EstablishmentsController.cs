@@ -12,40 +12,38 @@ using System.Text.RegularExpressions;
 namespace ExtratosApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/releases")]
+    [Route("api/establishments")]
     [ApiController]
-    public class ReleasesController: ControllerBase
+    public class EstablishmentsController: ControllerBase
     {
-        private readonly ILogger<ReleasesController> logger;
-        private readonly ReleasesService releasesService;
+        private readonly ILogger<EstablishmentsController> logger;
         private readonly EstablishmentService establishmentService;
-        public ReleasesController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService) {
+        public EstablishmentsController(ILogger<EstablishmentsController> logger, EstablishmentService establishmentService) {
             this.logger = logger;
-            this.releasesService = releasesService;
             this.establishmentService = establishmentService;
         }
 
         /// <summary>
-        /// Returns an array of releases
+        /// Returns an array of establishments
         /// </summary>
-        /// <returns>An array of all releases inserted in the past</returns>
+        /// <returns>An array of all establishments inserted in the past</returns>
         /// <response code="200">Returns the array</response>
-        /// <response code="404">If can't find any release</response>    
+        /// <response code="404">If can't find any establishment</response>    
         /// <response code="500">If an error in server side happens</response> 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<Release>>> Get()
+        public async Task<ActionResult<List<Establishment>>> Get()
         {
-            List<Release> releases;
+            List<Establishment> establishments;
             try {
-                logger.LogInformation("Trying to get releases from database");
-                releases = await releasesService.GetAll();
+                logger.LogInformation("Trying to get establishments from database");
+                establishments = await establishmentService.GetAll();
 
-                if (releases.Count == 0) {
+                if (establishments.Count == 0) {
                     var errorDetails = new ResponseDetails() {
-                       Message = "Não foi possível encontrar nenhum Lançamento no banco de dados.",
+                       Message = "Não foi possível encontrar nenhum Estabelecimento no banco de dados.",
                        StatusCode = 404
                    };
                    logger.LogInformation("Error: " + errorDetails.Message);
@@ -57,89 +55,80 @@ namespace ExtratosApi.Controllers
                 throw ex;
             }
 
-            logger.LogInformation("Action GET for /api/releases returns 200");
-            return Ok(releases);
+            logger.LogInformation("Action GET for /api/establishments returns 200");
+            return Ok(establishments);
         }
-
+        
         /// <summary>
-        /// Creates a new release
+        /// Creates a new establishment 
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     POST api/releases
+        ///     POST api/establishments
         ///     {
-        ///        "date": "05/05/2019",
-        ///        "paymentMethod": "Credit",
-        ///        "establishmentName": "Padaria Stn"
-        ///        "amount": 34.88
+        ///        "name": "Padaria Stn",
+        ///        "type": "Alimentação",
         ///     }
         ///
         /// </remarks>
         /// <returns>The newly release created</returns>
-        /// <response code="201">Returns the newly created release</response>
+        /// <response code="201">Returns the newly created establishment</response>
         /// <response code="400">If the request is not in correct format</response>    
-        /// <response code="404">If the resource is not in the database</response>    
         /// <response code="500">If an error in server side happens</response>    
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Release>> Post([FromBody] ReleaseRequest body)
+        public async Task<ActionResult<Establishment>> Post([FromBody] EstablishmentRequest body)
         {
-            Release resultRelease;
+            Establishment resultEstablishment;
             try {
+                logger.LogInformation("Trying to verify if establishment with given Name exists");
+                var establishment = await establishmentService.GetByName(body.Name.FirstCharToUpper());
 
-                logger.LogInformation("Trying to get associated establishment");
-                var establishment = await establishmentService.GetByName(body.EstablishmentName);
-
-                if (establishment == null) {
+                if (establishment != null) {
                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum estabelecimento associado com esse nome.",
-                        StatusCode = 404
+                        Message = "Não é permitido inserir estabelecimento, pois já existe um estabelecimento cadastrado com esse nome.",
+                        StatusCode = 406
                     };
                     logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    return StatusCode(406, errorDetails);
                 }
 
-                logger.LogInformation("Inserting release into database");
-                var newRelease = new Release() {
-                    Date = body.Date,
-                    PaymentMethod = body.PaymentMethod,
-                    Amount = body.Amount,
-                    EstablishmentName = establishment.Name,
+                logger.LogInformation("Inserting establishment into database");
+                var newEstablishment = new Establishment() {
+                    Name = body.Name.FirstCharToUpper(),                       
+                    Type = body.Type,
                     CreatedAt = DateTime.Now
                 };
                 
-                resultRelease = await releasesService.CreateItem(newRelease);
+                resultEstablishment = await establishmentService.CreateItem(newEstablishment);
 
             } catch(Exception ex) {
                 logger.LogInformation("Exception: " + ex.Message);
                 throw ex;
             }
 
-            logger.LogInformation("Action POST for /api/releases returns 201");
-            return Created("", resultRelease);
+            logger.LogInformation("Action POST for /api/establishments returns 201");
+            return Created("", resultEstablishment);
         }
 
         /// <summary>
-        /// Updates an old release
+        /// Updates an old establishment 
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     PUT api/releases/5dcaad2526235a471cfcccaf
+        ///     PUT api/establishments/5dcaad2526235a471cfcccaf
         ///     {
-        ///        "date": "06/05/2019",
-        ///        "paymentMethod": "Credit",
-        ///        "establishmentName": "Padaria Stn"
-        ///        "amount": 56.88
+        ///        "name": "Padaria Nova Stn",
+        ///        "type": "Alimentação",
         ///     }
         ///
         /// </remarks>
-        /// <returns>The updated release</returns>
-        /// <response code="200">Returns the updated release</response>
+        /// <returns>The updated establishment</returns>
+        /// <response code="200">Returns the updated establishment</response>
         /// <response code="400">If the request is not in correct format</response>    
         /// <response code="404">If the resource is not in the database</response>    
         /// <response code="406">If the resource is not acceptable</response>    
@@ -150,7 +139,7 @@ namespace ExtratosApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Release>> Put(string id, [FromBody] ReleaseRequest body)
+        public async Task<ActionResult<Establishment>> Put(string id, [FromBody] EstablishmentRequest body)
         {
             // Validating id
             if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
@@ -162,12 +151,12 @@ namespace ExtratosApi.Controllers
                     return BadRequest(errorDetails);
             }
 
-            Release updatedRelease;
+            Establishment updatedEstablishment;
             try {
-                logger.LogInformation("Trying to get a release with given id");
-                var actualRelease = await releasesService.GetById(id);
+                logger.LogInformation("Trying to get a establishemnt with given id");
+                var actualEstablishment = await establishmentService.GetById(id);
 
-                if (actualRelease == null) {
+                if (actualEstablishment == null) {
                      var errorDetails = new ResponseDetails() {
                         Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
                         StatusCode = 404
@@ -176,34 +165,20 @@ namespace ExtratosApi.Controllers
                     return NotFound(errorDetails);
                 }
 
-                logger.LogInformation("Trying to get associated establishment");
-                var establishment = await establishmentService.GetByName(body.EstablishmentName);
-
-                if (establishment == null) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum estabelecimento associado com esse nome.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
-                }
-
-                updatedRelease = new Release() {
+                updatedEstablishment = new Establishment() {
                     Id = id,
-                    Date = body.Date,
-                    PaymentMethod = body.PaymentMethod,
-                    Amount = body.Amount,
-                    EstablishmentName = establishment.Name,
-                    CreatedAt = actualRelease.CreatedAt,
+                    Name = body.Name.FirstCharToUpper(),
+                    Type = body.Type,
+                    CreatedAt = actualEstablishment.CreatedAt,
                     UpdatedAt = DateTime.Now
                 };
 
-                logger.LogInformation("Trying to update release with id: " + id);
-                var replaceResult = await releasesService.UpdateById(id, updatedRelease);
+                logger.LogInformation("Trying to update establishment with id: " + id);
+                var replaceResult = await establishmentService.UpdateById(id, updatedEstablishment);
 
                 if (!replaceResult.IsAcknowledged) {
                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível realizar a remoção seguindo os valores passados.",
+                        Message = "Não foi possível realizar a atualização seguindo os valores passados.",
                         StatusCode = 406
                     };
                     logger.LogInformation("Error: " + errorDetails.Message);
@@ -215,17 +190,17 @@ namespace ExtratosApi.Controllers
                 throw ex;
             }
 
-            logger.LogInformation("Action PUT for /api/releases returns 200");
-            return Ok(updatedRelease);
+            logger.LogInformation("Action PUT for /api/establishments returns 200");
+            return Ok(updatedEstablishment);
         }
 
         /// <summary>
-        /// Deletes a release
+        /// Deletes an establishment 
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     DELETE api/releases/5dcaad2526235a471cfcccaf
+        ///     DELETE api/establishments/5dcaad2526235a471cfcccaf
         ///
         /// </remarks>
         /// <returns>The response message with success</returns>
@@ -252,22 +227,22 @@ namespace ExtratosApi.Controllers
             }
 
             try {
-                logger.LogInformation("Trying to get a release with given id");
-                var actualRelease = await releasesService.GetById(id);
+                logger.LogInformation("Trying to get a establishment with given id");
+                var actualEstablishment = await establishmentService.GetById(id);
 
-                if (actualRelease == null) {
+                if (actualEstablishment == null) {
                      var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
+                        Message = "Não foi possível encontrar nenhum estabelecimento associado com esse id.",
                         StatusCode = 404
                     };
                     logger.LogInformation("Error: " + errorDetails.Message);
                     return NotFound(errorDetails);
                 }
 
-                var deleteResult = await releasesService.RemoveById(id);
+                var deleteResult = await establishmentService.RemoveById(id);
                 if(!deleteResult.IsAcknowledged) {
                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível realizar a atualização seguindo os valores passados.",
+                        Message = "Não foi possível realizar a remoção seguindo os valores passados.",
                         StatusCode = 406
                     };
                     logger.LogInformation("Error: " + errorDetails.Message);
@@ -279,8 +254,8 @@ namespace ExtratosApi.Controllers
                 throw ex;
             }
 
-            logger.LogInformation("Action DELETE for /api/releases returns 200");
-            return Ok(new ResponseDetails() {Message = "Lançamento deletado com sucesso", StatusCode = 200});
+            logger.LogInformation("Action DELETE for /api/establishments returns 200");
+            return Ok(new ResponseDetails() {Message = "Estabelecimento deletado com sucesso", StatusCode = 200});
         }
     }
 }
