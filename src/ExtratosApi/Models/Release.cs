@@ -11,7 +11,7 @@ namespace ExtratosApi.Models {
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public PaymentMethod PaymentMethod { get; set; }
 

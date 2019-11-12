@@ -37,8 +37,8 @@ namespace ExtratosApi.Services{
             return await collectionItem.FirstOrDefaultAsync();
         }
 
-        public async void UpdateById(string id, T updatedItem) {
-            await _collection.ReplaceOneAsync(item => item.Id == id, updatedItem);
+        public async Task<ReplaceOneResult> UpdateById(string id, T updatedItem) {
+            return await _collection.ReplaceOneAsync(item => item.Id == id, updatedItem);
         }
 
         public async void RemoveById(string id) {
