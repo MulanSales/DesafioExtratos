@@ -68,7 +68,7 @@ namespace ExtratosApi.Controllers
         ///     POST api/establishments
         ///     {
         ///        "name": "Padaria Stn",
-        ///        "Type": "Alimentação",
+        ///        "type": "Alimentação",
         ///     }
         ///
         /// </remarks>
@@ -84,10 +84,21 @@ namespace ExtratosApi.Controllers
         {
             Establishment resultEstablishment;
             try {
+                logger.LogInformation("Trying to verify if establishment with given Name exists");
+                var establishment = await establishmentService.GetByName(body.Name.FirstCharToUpper());
+
+                if (establishment != null) {
+                    var errorDetails = new ResponseDetails() {
+                        Message = "Não é permitido inserir estabelecimento, pois já existe um estabelecimento cadastrado com esse nome.",
+                        StatusCode = 406
+                    };
+                    logger.LogInformation("Error: " + errorDetails.Message);
+                    return StatusCode(406, errorDetails);
+                }
 
                 logger.LogInformation("Inserting establishment into database");
                 var newEstablishment = new Establishment() {
-                    Name = body.Name,                       
+                    Name = body.Name.FirstCharToUpper(),                       
                     Type = body.Type,
                     CreatedAt = DateTime.Now
                 };
@@ -112,7 +123,7 @@ namespace ExtratosApi.Controllers
         ///     PUT api/establishments/5dcaad2526235a471cfcccaf
         ///     {
         ///        "name": "Padaria Nova Stn",
-        ///        "Type": "Alimentação",
+        ///        "type": "Alimentação",
         ///     }
         ///
         /// </remarks>
@@ -156,7 +167,7 @@ namespace ExtratosApi.Controllers
 
                 updatedEstablishment = new Establishment() {
                     Id = id,
-                    Name = body.Name,
+                    Name = body.Name.FirstCharToUpper(),
                     Type = body.Type,
                     CreatedAt = actualEstablishment.CreatedAt,
                     UpdatedAt = DateTime.Now
