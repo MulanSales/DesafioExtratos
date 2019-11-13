@@ -20,7 +20,7 @@ namespace ExtratosApi.Controllers
         private readonly ReleasesService releasesService;
         private readonly EstablishmentService establishmentService;
         private readonly ControllerMessages responseMessages;
-         private readonly HttpResponseHelper httpResponseHelper;
+        private readonly HttpResponseHelper httpResponseHelper;
         public StatementsController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService, ControllerMessages responseMessages) {
             this.logger = logger;
             this.releasesService = releasesService;
