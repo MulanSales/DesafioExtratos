@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using ExtratosApi.Helpers;
 
 namespace ExtratosApi.Controllers
 {
@@ -18,9 +19,13 @@ namespace ExtratosApi.Controllers
     {
         private readonly ILogger<EstablishmentsController> logger;
         private readonly EstablishmentService establishmentService;
-        public EstablishmentsController(ILogger<EstablishmentsController> logger, EstablishmentService establishmentService) {
+        private readonly HttpResponseHelper httpResponseHelper;
+        private readonly ControllerMessages responseMessages;
+        public EstablishmentsController(ILogger<EstablishmentsController> logger, EstablishmentService establishmentService, ControllerMessages responseMessages) {
             this.logger = logger;
             this.establishmentService = establishmentService;
+            this.httpResponseHelper = new HttpResponseHelper();
+            this.responseMessages = responseMessages;
         }
 
         /// <summary>
@@ -42,12 +47,9 @@ namespace ExtratosApi.Controllers
                 establishments = await establishmentService.GetAll();
 
                 if (establishments.Count == 0) {
-                    var errorDetails = new ResponseDetails() {
-                       Message = "Não foi possível encontrar nenhum Estabelecimento no banco de dados.",
-                       StatusCode = 404
-                   };
-                   logger.LogInformation("Error: " + errorDetails.Message);
-                  return NotFound(errorDetails);
+                   string errorMessage = responseMessages.NotFound.Replace("$", "Estabelecimento");
+                   logger.LogInformation("Error: " + errorMessage);
+                   return httpResponseHelper.ErrorResponse(errorMessage, 404);
                }
             } 
             catch (Exception ex) {
@@ -88,18 +90,15 @@ namespace ExtratosApi.Controllers
                 var establishment = await establishmentService.GetByName(body.Name.FirstCharToUpper());
 
                 if (establishment != null) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não é permitido inserir estabelecimento, pois já existe um estabelecimento cadastrado com esse nome.",
-                        StatusCode = 406
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return StatusCode(406, errorDetails);
+                    string errorMessage = responseMessages.NotAccepted.Replace("$", "estabelecimento"); 
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 406);
                 }
 
                 logger.LogInformation("Inserting establishment into database");
                 var newEstablishment = new Establishment() {
                     Name = body.Name.FirstCharToUpper(),                       
-                    Type = body.Type,
+                    Type = body.Type.FirstCharToUpper() + body.Type.Substring(1).ToLower(),
                     CreatedAt = DateTime.Now
                 };
                 
@@ -143,12 +142,9 @@ namespace ExtratosApi.Controllers
         {
             // Validating id
             if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
-                var errorDetails = new ResponseDetails() {
-                        Message = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
-                        StatusCode = 400
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return BadRequest(errorDetails);
+                string errorMessage = responseMessages.IncorretIdFormat;
+                logger.LogInformation("Error: " + errorMessage);
+                return httpResponseHelper.ErrorResponse(errorMessage, 400);
             }
 
             Establishment updatedEstablishment;
@@ -157,18 +153,15 @@ namespace ExtratosApi.Controllers
                 var actualEstablishment = await establishmentService.GetById(id);
 
                 if (actualEstablishment == null) {
-                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    string errorMessage = responseMessages.NotFoundGivenId.Replace("$", "estabelecimento") ;
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                 }
 
                 updatedEstablishment = new Establishment() {
                     Id = id,
                     Name = body.Name.FirstCharToUpper(),
-                    Type = body.Type,
+                    Type = body.Type.FirstCharToUpper() + body.Type.Substring(1).ToLower(),
                     CreatedAt = actualEstablishment.CreatedAt,
                     UpdatedAt = DateTime.Now
                 };
@@ -177,12 +170,9 @@ namespace ExtratosApi.Controllers
                 var replaceResult = await establishmentService.UpdateById(id, updatedEstablishment);
 
                 if (!replaceResult.IsAcknowledged) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível realizar a atualização seguindo os valores passados.",
-                        StatusCode = 406
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return StatusCode(406, errorDetails);
+                    string errorMessage = responseMessages.CantUpdate; 
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 406);
                 }
 
             } catch (Exception ex) {
@@ -218,12 +208,9 @@ namespace ExtratosApi.Controllers
         public async Task<ActionResult<ResponseDetails>> Delete(string id)
         {
             if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
-                var errorDetails = new ResponseDetails() {
-                        Message = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
-                        StatusCode = 400
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return BadRequest(errorDetails);
+                string errorMessage = responseMessages.IncorretIdFormat;
+                logger.LogInformation("Error: " + errorMessage);
+                return httpResponseHelper.ErrorResponse(errorMessage, 400);
             }
 
             try {
@@ -231,22 +218,16 @@ namespace ExtratosApi.Controllers
                 var actualEstablishment = await establishmentService.GetById(id);
 
                 if (actualEstablishment == null) {
-                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum estabelecimento associado com esse id.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    string errorMessage = responseMessages.NotFoundGivenId.Replace("$", "estabelecimento");
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                 }
 
                 var deleteResult = await establishmentService.RemoveById(id);
                 if(!deleteResult.IsAcknowledged) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível realizar a remoção seguindo os valores passados.",
-                        StatusCode = 406
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return StatusCode(406, errorDetails);
+                    string errorMessage = responseMessages.CantRemove;
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 406);
                 }
 
             } catch(Exception ex) {
@@ -255,7 +236,7 @@ namespace ExtratosApi.Controllers
             }
 
             logger.LogInformation("Action DELETE for /api/establishments returns 200");
-            return Ok(new ResponseDetails() {Message = "Estabelecimento deletado com sucesso", StatusCode = 200});
+            return Ok(new ResponseDetails() {Message = responseMessages.DeletedSuccess.Replace("$", "estabelecimento"), StatusCode = 200});
         }
     }
 }
