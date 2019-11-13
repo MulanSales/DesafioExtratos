@@ -2,8 +2,10 @@
 using System.IO;
 using System.Reflection;
 using ExtratosApi.Extensions;
+using ExtratosApi.Models;
 using ExtratosApi.Models.Database;
 using ExtratosApi.Services;
+using ExtratosApi.Helpers;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -62,7 +64,10 @@ namespace ExtratosApi
             // Injecting releases service
             services.AddSingleton<ReleasesService>();
             services.AddSingleton<EstablishmentService>();
-
+            
+            services.AddSingleton<ControllerMessages>(cm => {
+                return ManifestDataHelper.ParseManifestDataToObject<ControllerMessages>("ExtratosApi.Data.Messages.controllers.json").Result;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

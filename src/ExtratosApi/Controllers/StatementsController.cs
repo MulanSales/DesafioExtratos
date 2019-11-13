@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ExtratosApi.Helpers;
 using ExtratosApi.Models;
 using ExtratosApi.Services;
 using Microsoft.AspNetCore.Http;
@@ -18,10 +19,14 @@ namespace ExtratosApi.Controllers
         private readonly ILogger<ReleasesController> logger;
         private readonly ReleasesService releasesService;
         private readonly EstablishmentService establishmentService;
-        public StatementsController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService) {
+        private readonly ControllerMessages responseMessages;
+         private readonly HttpResponseHelper httpResponseHelper;
+        public StatementsController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService, ControllerMessages responseMessages) {
             this.logger = logger;
             this.releasesService = releasesService;
             this.establishmentService = establishmentService;
+            this.responseMessages = responseMessages;
+            this.httpResponseHelper = new HttpResponseHelper();
         }
 
         /// <summary>
@@ -43,13 +48,10 @@ namespace ExtratosApi.Controllers
                 List<Release> releases = await releasesService.GetAll();
 
                 if (releases.Count == 0) {
-                    var errorDetails = new ResponseDetails() {
-                       Message = "Não foi possível encontrar nenhum Lançamento no banco de dados.",
-                       StatusCode = 404
-                   };
-                   logger.LogInformation("Error: " + errorDetails.Message);
-                  return NotFound(errorDetails);
-               }
+                   string errorMessage = responseMessages.NotFound.Replace("$", "Lançamentos");
+                   logger.LogInformation("Error: " + errorMessage);
+                   return httpResponseHelper.ErrorResponse(errorMessage, 404);
+                }
 
                 var establishments = await establishmentService.GetAll();
 
@@ -74,7 +76,7 @@ namespace ExtratosApi.Controllers
                 throw ex;
             }
 
-            logger.LogInformation("Action GET for /api/releases returns 200");
+            logger.LogInformation("Action GET for /api/statements returns 200");
             return Ok(statements);
         }
     }
