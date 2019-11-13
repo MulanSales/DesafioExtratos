@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using ExtratosApi.Helpers;
 
 namespace ExtratosApi.Controllers
 {
@@ -19,10 +20,14 @@ namespace ExtratosApi.Controllers
         private readonly ILogger<ReleasesController> logger;
         private readonly ReleasesService releasesService;
         private readonly EstablishmentService establishmentService;
-        public ReleasesController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService) {
+        private readonly ControllerMessages responseMessages;
+         private readonly HttpResponseHelper httpResponseHelper;
+        public ReleasesController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService, ControllerMessages responseMessages) {
             this.logger = logger;
             this.releasesService = releasesService;
             this.establishmentService = establishmentService;
+            this.responseMessages = responseMessages;
+            this.httpResponseHelper = new HttpResponseHelper();
         }
 
         /// <summary>
@@ -44,12 +49,9 @@ namespace ExtratosApi.Controllers
                 releases = await releasesService.GetAll();
 
                 if (releases.Count == 0) {
-                    var errorDetails = new ResponseDetails() {
-                       Message = "Não foi possível encontrar nenhum Lançamento no banco de dados.",
-                       StatusCode = 404
-                   };
-                   logger.LogInformation("Error: " + errorDetails.Message);
-                  return NotFound(errorDetails);
+                   string errorMessage = responseMessages.NotFound.Replace("$", "Lançamentos");
+                   logger.LogInformation("Error: " + errorMessage);
+                   return httpResponseHelper.ErrorResponse(errorMessage, 404);
                }
             } 
             catch (Exception ex) {
@@ -95,12 +97,9 @@ namespace ExtratosApi.Controllers
                 var establishment = await establishmentService.GetByName(body.EstablishmentName);
 
                 if (establishment == null) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum estabelecimento associado com esse nome.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    string errorMessage = responseMessages.CantFoundGivenName.Replace("$", "estabelecimento") ;
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                 }
 
                 logger.LogInformation("Inserting release into database");
@@ -154,12 +153,9 @@ namespace ExtratosApi.Controllers
         {
             // Validating id
             if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
-                var errorDetails = new ResponseDetails() {
-                        Message = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
-                        StatusCode = 400
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return BadRequest(errorDetails);
+                string errorMessage = responseMessages.IncorretIdFormat;
+                logger.LogInformation("Error: " + errorMessage);
+                return httpResponseHelper.ErrorResponse(errorMessage, 400);
             }
 
             Release updatedRelease;
@@ -168,24 +164,18 @@ namespace ExtratosApi.Controllers
                 var actualRelease = await releasesService.GetById(id);
 
                 if (actualRelease == null) {
-                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    string errorMessage = responseMessages.NotFoundGivenId.Replace("$", "lançamento") ;
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 404);;
                 }
 
                 logger.LogInformation("Trying to get associated establishment");
                 var establishment = await establishmentService.GetByName(body.EstablishmentName);
 
                 if (establishment == null) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum estabelecimento associado com esse nome.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    string errorMessage = responseMessages.CantFoundGivenName.Replace("$", "estabelecimento") ;
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                 }
 
                 updatedRelease = new Release() {
@@ -202,12 +192,9 @@ namespace ExtratosApi.Controllers
                 var replaceResult = await releasesService.UpdateById(id, updatedRelease);
 
                 if (!replaceResult.IsAcknowledged) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível realizar a remoção seguindo os valores passados.",
-                        StatusCode = 406
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return StatusCode(406, errorDetails);
+                    string errorMessage = responseMessages.CantUpdate; 
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 406);
                 }
 
             } catch (Exception ex) {
@@ -243,12 +230,9 @@ namespace ExtratosApi.Controllers
         public async Task<ActionResult<ResponseDetails>> Delete(string id)
         {
             if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
-                var errorDetails = new ResponseDetails() {
-                        Message = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
-                        StatusCode = 400
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return BadRequest(errorDetails);
+                string errorMessage = responseMessages.IncorretIdFormat;
+                logger.LogInformation("Error: " + errorMessage);
+                return httpResponseHelper.ErrorResponse(errorMessage, 400);
             }
 
             try {
@@ -256,22 +240,16 @@ namespace ExtratosApi.Controllers
                 var actualRelease = await releasesService.GetById(id);
 
                 if (actualRelease == null) {
-                     var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível encontrar nenhum lançamento associado com esse id.",
-                        StatusCode = 404
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return NotFound(errorDetails);
+                    string errorMessage = responseMessages.NotFoundGivenId.Replace("$", "lançamento");
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                 }
 
                 var deleteResult = await releasesService.RemoveById(id);
                 if(!deleteResult.IsAcknowledged) {
-                    var errorDetails = new ResponseDetails() {
-                        Message = "Não foi possível realizar a atualização seguindo os valores passados.",
-                        StatusCode = 406
-                    };
-                    logger.LogInformation("Error: " + errorDetails.Message);
-                    return StatusCode(406, errorDetails);
+                    string errorMessage = responseMessages.CantRemove;
+                    logger.LogInformation("Error: " + errorMessage);
+                    return httpResponseHelper.ErrorResponse(errorMessage, 406);
                 }
 
             } catch(Exception ex) {
@@ -280,7 +258,7 @@ namespace ExtratosApi.Controllers
             }
 
             logger.LogInformation("Action DELETE for /api/releases returns 200");
-            return Ok(new ResponseDetails() {Message = "Lançamento deletado com sucesso", StatusCode = 200});
+            return Ok(new ResponseDetails() { Message = responseMessages.DeletedSuccess.Replace("$", "lançamento"), StatusCode = 200 });
         }
     }
 }
