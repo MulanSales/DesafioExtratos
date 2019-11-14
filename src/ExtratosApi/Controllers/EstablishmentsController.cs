@@ -141,7 +141,7 @@ namespace ExtratosApi.Controllers
         public async Task<ActionResult<Establishment>> Put(string id, [FromBody] EstablishmentRequest body)
         {
             // Validating id
-            if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
+            if (id == null || !Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
                 string errorMessage = responseMessages.IncorretIdFormat;
                 logger.LogInformation("Error: " + errorMessage);
                 return httpResponseHelper.ErrorResponse(errorMessage, 400);
@@ -207,7 +207,7 @@ namespace ExtratosApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ResponseDetails>> Delete(string id)
         {
-            if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
+            if (id == null || !Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
                 string errorMessage = responseMessages.IncorretIdFormat;
                 logger.LogInformation("Error: " + errorMessage);
                 return httpResponseHelper.ErrorResponse(errorMessage, 400);
