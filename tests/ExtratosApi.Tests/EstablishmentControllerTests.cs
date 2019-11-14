@@ -71,6 +71,9 @@ namespace ExtratosApi.Tests
         [Fact(DisplayName = "Should return 200 and a list of establishments if successful")]
         public async void Get_SuccessStatus200_Test()
         {
+             // 0: Remove all establishments from database
+            await establishmentService.RemoveAll();
+
             // 1: Creating testing objects
             Establishment firstEstablishment = new Establishment() 
             {
@@ -274,7 +277,7 @@ namespace ExtratosApi.Tests
         }
 
         [Fact(DisplayName = "Should return 200 and the updated establishment")]
-        public async void Put_SuccessStatus201_Test()
+        public async void Put_SuccessStatus200_Test()
         {
             // 0: Remove all establishments from database
             await establishmentService.RemoveAll();
