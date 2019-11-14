@@ -98,7 +98,7 @@ namespace ExtratosApi.Controllers
                 logger.LogInformation("Inserting establishment into database");
                 var newEstablishment = new Establishment() {
                     Name = body.Name.FirstCharToUpper(),                       
-                    Type = body.Type.FirstCharToUpper() + body.Type.Substring(1).ToLower(),
+                    Type = body.Type.FirstCharToUpper(),
                     CreatedAt = DateTime.Now
                 };
                 
@@ -161,7 +161,7 @@ namespace ExtratosApi.Controllers
                 updatedEstablishment = new Establishment() {
                     Id = id,
                     Name = body.Name.FirstCharToUpper(),
-                    Type = body.Type.FirstCharToUpper() + body.Type.Substring(1).ToLower(),
+                    Type = body.Type.FirstCharToUpper(),
                     CreatedAt = actualEstablishment.CreatedAt,
                     UpdatedAt = DateTime.Now
                 };
