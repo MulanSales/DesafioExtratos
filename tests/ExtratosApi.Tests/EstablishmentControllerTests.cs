@@ -7,8 +7,6 @@ using ExtratosApi.Models.Request;
 using ExtratosApi.Services;
 using ExtratosApi.Tests.Fixtures;
 using ExtratosApi.Tests.Wrappers;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using Moq;
 using Xunit;
 
@@ -307,7 +305,88 @@ namespace ExtratosApi.Tests
 
             Assert.Equal(200, statusCode);
             Assert.Equal("Test 2", result.Name);
+        }
 
+        [Theory(DisplayName="Should returns 400 if id is not in correct format while DELETE")]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("123456")]
+        [InlineData("5dcaad2526235a471cfcccar")]
+        public async void Delete_InvalidId400_Test(string id) 
+        {
+            // 1: Call DELETE Action passing id of establishment to be deleted
+            var query = await establishmentsController.Delete(id);
+
+            ResponseDetails result = (ResponseDetails)query.Result.GetType().GetProperty("Value").GetValue(query.Result);
+
+            Assert.Equal(400, result.StatusCode);
+            Assert.Equal(controllerMessages.IncorretIdFormat, result.Message);
+        }
+
+        [Fact(DisplayName = "Should throws if any exception occurs while DELETE")]
+        public async void Delete_ThrowsException_Test()
+        {
+            // 1: Request id
+            string id = "5dcaad2526235a471cfcccad";
+
+            // 2: Mocking GetByName Method to throws
+            var establishmentServiceMock = new Mock<EstablishmentService>(dbSettings);
+            establishmentServiceMock.Setup(es => es.GetById(It.IsAny<string>())).ThrowsAsync(new InvalidOperationException());
+
+            var establishmentsControllerLocal = new EstablishmentsController(loggerWrapper, establishmentServiceMock.Object, controllerMessages);
+
+            // 3: Call POST Action and Expects to throws
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await establishmentsControllerLocal.Delete(id));
+        }
+
+        [Fact(DisplayName="Should return 404 if can't find any record with given Id on database while DELETE")]
+        public async void Delete_Returns404_IdNotFound_Test()
+        {
+             // 0: Remove all establishments from database
+            await establishmentService.RemoveAll();
+
+            // 1: Request body, given id is not found on database
+            string id = "5dcaad2526235a471cfcccad";
+
+            // 2: Call DELETE Action passing id request of establishment to be deleted
+            var query = await establishmentsController.Delete(id);
+
+            ResponseDetails result = (ResponseDetails)query.Result.GetType().GetProperty("Value").GetValue(query.Result);
+
+            Assert.Equal(404, result.StatusCode);
+            Assert.Equal(controllerMessages.NotFoundGivenId.Replace("$", "estabelecimento"), result.Message);
+        }
+
+        [Fact(DisplayName = "Should returns 406 if deletion is not accepted by the database")]
+        public async void Delete_Returns406_NotAcknowledged_Test()
+        {
+            // 0: Remove all establishments from database
+            await establishmentService.RemoveAll();
+
+            // 1: Request body
+            string id = "5dcaad2526235a471cfcccad";
+
+            // 2: Mocking GetById Method to return fake data
+            var fakeEstablishment = new Establishment{
+                Id = id,
+                Name = "Test 1",
+                Type = "Tipo 1"
+            };
+
+            var establishmentServiceMock = new Mock<EstablishmentService>(dbSettings);
+            establishmentServiceMock.Setup(es => es.GetById(It.IsAny<string>())).ReturnsAsync(fakeEstablishment);
+
+            var deleteResultWrapper = new DeleteResultWrapper();
+            establishmentServiceMock.Setup(es => es.RemoveById(It.IsAny<string>())).ReturnsAsync(deleteResultWrapper);
+
+            var establishmentsControllerLocal = new EstablishmentsController(loggerWrapper, establishmentServiceMock.Object, controllerMessages);
+
+            var query = await establishmentsControllerLocal.Delete(id);
+
+            var result = (ResponseDetails)query.Result.GetType().GetProperty("Value").GetValue(query.Result);
+
+            Assert.Equal(406, result.StatusCode);
+            Assert.Equal(controllerMessages.CantRemove, result.Message);
         }
 
         private ControllerMessages GetControllerMessagesProperties() 
