@@ -16,12 +16,12 @@ namespace ExtratosApi.Controllers
     [ApiController]
     public class StatementsController : ControllerBase
     {
-        private readonly ILogger<ReleasesController> logger;
+        private readonly ILogger<StatementsController> logger;
         private readonly ReleasesService releasesService;
         private readonly EstablishmentService establishmentService;
         private readonly ControllerMessages responseMessages;
         private readonly HttpResponseHelper httpResponseHelper;
-        public StatementsController(ILogger<ReleasesController> logger, ReleasesService releasesService, EstablishmentService establishmentService, ControllerMessages responseMessages) {
+        public StatementsController(ILogger<StatementsController> logger, ReleasesService releasesService, EstablishmentService establishmentService, ControllerMessages responseMessages) {
             this.logger = logger;
             this.releasesService = releasesService;
             this.establishmentService = establishmentService;
@@ -48,7 +48,7 @@ namespace ExtratosApi.Controllers
                 List<Release> releases = await releasesService.GetAll();
 
                 if (releases.Count == 0) {
-                   string errorMessage = responseMessages.NotFound.Replace("$", "Lançamentos");
+                   string errorMessage = responseMessages.NotFound.Replace("$", "Lançamento");
                    logger.LogInformation("Error: " + errorMessage);
                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                 }
