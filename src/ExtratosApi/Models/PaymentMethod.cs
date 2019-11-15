@@ -4,7 +4,7 @@ namespace ExtratosApi.Models {
 
     public enum PaymentMethod 
     {
-        Credit,
-        Debit
+        Credito,
+        Debito
     }
 }

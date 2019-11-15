@@ -6,7 +6,7 @@ using MongoDB.Driver;
 namespace ExtratosApi.Services{
     public class DatabaseServicesSchema<T> where T : ICollectionSchema
     {
-        public IMongoCollection<T> _collection; 
+        protected IMongoCollection<T> _collection; 
 
         private IDatabaseConnectorSettings _settings;
 
@@ -22,27 +22,31 @@ namespace ExtratosApi.Services{
             _collection = database.GetCollection<T>(collectionName);
         }
 
-        public async Task<T> CreateItem(T collectionItem) {
+        public virtual async Task<T> CreateItem(T collectionItem) {
             await _collection.InsertOneAsync(collectionItem);
             return collectionItem;
         }
 
-        public async Task<List<T>> GetAll() {
+        public virtual async Task<List<T>> GetAll() {
             IAsyncCursor<T> itemsList = await _collection.FindAsync(item => true);
             return await itemsList.ToListAsync();
         }
 
-        public async Task<T> GetById(string id) {
+        public virtual async Task<T> GetById(string id) {
             IAsyncCursor<T> collectionItem = await _collection.FindAsync<T>(item => item.Id == id);
             return await collectionItem.FirstOrDefaultAsync();
         }
 
-        public async Task<ReplaceOneResult> UpdateById(string id, T updatedItem) {
+        public virtual async Task<ReplaceOneResult> UpdateById(string id, T updatedItem) {
             return await _collection.ReplaceOneAsync(item => item.Id == id, updatedItem);
         }
 
-        public async Task<DeleteResult> RemoveById(string id) {
+        public virtual async Task<DeleteResult> RemoveById(string id) {
             return await _collection.DeleteOneAsync(item => item.Id == id);
+        }
+
+        public virtual async Task<DeleteResult> RemoveAll() {
+            return await _collection.DeleteManyAsync(item => item.Id != null);
         }
 
     }

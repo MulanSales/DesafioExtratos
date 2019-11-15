@@ -12,7 +12,13 @@
         </div>
         <h2 vspace=5px>- Diagrama de Classes (version 1.0)</h2>
         <div>
-            <img src="./public/ClassDiagram.png" />
+            <img src="./public/img/ClassDiagram.png" />
+        </div>
+        <h2 vspace=5px>- Stories - Pivotal Tracker</h2>
+        <div>
+            <p>O Projeto foi organizado através do modelo Kanban com a ferramenta Pivotal Tracker</p>
+            <a href="https://www.pivotaltracker.com/n/projects/2417244"><cite>-> Link do Projeto</cite></a>
+            <a href="./public/stories/desafioextratos_stories.csv"><p>-> Stories em formato CSV</p></a>
         </div>
     </body>
 </html>

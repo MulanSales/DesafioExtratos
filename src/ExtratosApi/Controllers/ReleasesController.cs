@@ -49,7 +49,7 @@ namespace ExtratosApi.Controllers
                 releases = await releasesService.GetAll();
 
                 if (releases.Count == 0) {
-                   string errorMessage = responseMessages.NotFound.Replace("$", "Lançamentos");
+                   string errorMessage = responseMessages.NotFound.Replace("$", "Lançamento");
                    logger.LogInformation("Error: " + errorMessage);
                    return httpResponseHelper.ErrorResponse(errorMessage, 404);
                }
@@ -152,7 +152,7 @@ namespace ExtratosApi.Controllers
         public async Task<ActionResult<Release>> Put(string id, [FromBody] ReleaseRequest body)
         {
             // Validating id
-            if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
+            if (id == null || !Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
                 string errorMessage = responseMessages.IncorretIdFormat;
                 logger.LogInformation("Error: " + errorMessage);
                 return httpResponseHelper.ErrorResponse(errorMessage, 400);
@@ -229,7 +229,7 @@ namespace ExtratosApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ResponseDetails>> Delete(string id)
         {
-            if (!Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
+            if (id == null || !Regex.IsMatch(id, "^[0-9a-fA-F]{24}$")) {
                 string errorMessage = responseMessages.IncorretIdFormat;
                 logger.LogInformation("Error: " + errorMessage);
                 return httpResponseHelper.ErrorResponse(errorMessage, 400);

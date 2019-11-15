@@ -11,7 +11,7 @@ script:
   - dotnet minicover instrument --workdir ../ --assemblies tests/ExtratosApi.Tests/**/bin/**/*.dll --sources src/ExtratosApi/Controllers/**/*.cs
   - dotnet minicover reset
   - cd ..
-  - dotnet test --no-build ./tests/ExtratosApi.Tests/ExtratosApi.Tests.csproj
+  - dotnet test --no-build ./tests/ExtratosApi.Tests/ExtratosApi.Tests.csproj --verbosity normal
   - cd tools
   - dotnet minicover uninstrument --workdir ../
   - dotnet minicover coverallsreport --root-path ../ --workdir ../ --service-name "travis-ci" --service-job-id "$TRAVIS_JOB_ID"

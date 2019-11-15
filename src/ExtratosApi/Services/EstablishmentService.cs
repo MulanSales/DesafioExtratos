@@ -10,7 +10,7 @@ namespace ExtratosApi.Services{
         {
         }
 
-        public async Task<Establishment> GetByName(string name) {
+        public virtual async Task<Establishment> GetByName(string name) {
             IAsyncCursor<Establishment> collectionItem = await _collection.FindAsync<Establishment>(item => item.Name == name);
             return await collectionItem.FirstOrDefaultAsync();
         }
