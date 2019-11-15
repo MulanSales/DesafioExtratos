@@ -5,15 +5,17 @@ using ExtratosApi.Models;
 using ExtratosApi.Models.Database;
 using ExtratosApi.Models.Request;
 using ExtratosApi.Services;
+using ExtratosApi.Tests.Abstractions;
 using ExtratosApi.Tests.Fixtures;
 using ExtratosApi.Tests.Wrappers;
 using Moq;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace ExtratosApi.Tests
 {
-    [Collection("Establishment Controller Tests")]
-    public class EstablishmentControllerTests : IClassFixture<DatabaseSettingsFixture>
+    [CollectionDefinition("Establishment Controller Tests"), Order(1)]
+    public class EstablishmentControllerTests : ControllerTest, IClassFixture<DatabaseSettingsFixture>
     {
         private readonly IDatabaseConnectorSettings dbSettings;
         private readonly LoggerWrapper<EstablishmentsController> loggerWrapper;
@@ -162,11 +164,11 @@ namespace ExtratosApi.Tests
             var query = await establishmentsController.Post(requestBody);
 
             var resultStatusCode = query.Result.GetType().GetProperty("StatusCode").GetValue(query.Result);
-            var resultValue = query.Result.GetType().GetProperty("Value").GetValue(query.Result);
+            var resultValue = (Establishment)query.Result.GetType().GetProperty("Value").GetValue(query.Result);
 
             Assert.Equal(201, (int)resultStatusCode);
-            Assert.Equal("Test 1", ((Establishment)resultValue).Name);
-            Assert.Equal("Alimentação", ((Establishment)resultValue).Type);
+            Assert.Equal("Test 1", resultValue.Name);
+            Assert.Equal("Alimentação", resultValue.Type);
         }
 
         [Theory(DisplayName="Should returns 400 if id is not in correct format")]
@@ -389,20 +391,29 @@ namespace ExtratosApi.Tests
             Assert.Equal(controllerMessages.CantRemove, result.Message);
         }
 
-        private ControllerMessages GetControllerMessagesProperties() 
+        [Fact(DisplayName = "Should return 200 after establishment deletion")]
+        public async void Delete_SuccessStatus200_Test()
         {
-            return new ControllerMessages() 
-            {
-                NotFound = "Não foi possível encontrar nenhum $ no banco de dados.",
-                NotAccepted = "Não é permitido inserir $, pois já existe um $ cadastrado com esse nome.",
-                IncorretIdFormat = "O paramêtro Id está em formato incorreto. Deve ser hexadecimal com tamanho 24",
-                NotFoundGivenId = "Não foi possível encontrar nenhum $ associado com esse id.",
-                CantUpdate = "Não foi possível realizar a atualização seguindo os valores passados.",
-                CantFoundGivenName = "Não foi possível encontrar nenhum $ associado com esse nome.",
-                CantRemove = "Não foi possível realizar a remoção seguindo os valores passados.",
-                DeletedSuccess= "$ deletado com sucesso"
+            // 1: POST Request body
+            var postRequestBody = new EstablishmentRequest {
+                Name = "Test 1",
+                Type = "alimentação"
             };
+
+            // 2: Call POST Action passing body request with a new establishment
+            var postQuery = await establishmentsController.Post(postRequestBody);
+
+            var postResultValue = (Establishment)postQuery.Result.GetType().GetProperty("Value").GetValue(postQuery.Result);
+
+            // 3: DELETE given Id param
+            string id = postResultValue.Id;
+
+            var query = await establishmentsController.Delete(id);
+
+            var result = (ResponseDetails)query.Result.GetType().GetProperty("Value").GetValue(query.Result);
+
+            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(controllerMessages.DeletedSuccess.Replace("$", "estabelecimento"), result.Message);
         }
-        
     }
 }

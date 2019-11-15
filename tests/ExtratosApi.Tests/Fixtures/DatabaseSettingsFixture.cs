@@ -9,6 +9,7 @@ namespace ExtratosApi.Tests.Fixtures
     {
         public IDatabaseConnectorSettings dbSettings { get; private set; }
         public EstablishmentService establishmentService;
+        public ReleasesService releasesService;
         public DatabaseSettingsFixture()
         {
             var mockDatabaseSettings = new Mock<IDatabaseConnectorSettings>();
@@ -18,10 +19,12 @@ namespace ExtratosApi.Tests.Fixtures
 
             this.dbSettings = mockDatabaseSettings.Object;
             this.establishmentService = new EstablishmentService(dbSettings);
+            this.releasesService = new ReleasesService(dbSettings);
         }
         public async void Dispose()
         {
             await establishmentService.RemoveAll();
+            await releasesService.RemoveAll();
         }
     }
 }
