@@ -12,13 +12,13 @@
         </div>
         <h2 vspace=5px>- Considerações Gerais</h2>
         <ul>
-            <li>A consolidação dos resultados da API e o teste de carga podem ser acessados no seguinte <a href="https://extratos-resultados-app.herokuapp.com/">aqui</a></li>
+            <li>A consolidação dos resultados da API e o teste de carga podem ser acessados <a href="https://extratos-resultados-app.herokuapp.com/">aqui</a>;</li>
             <li>Os nomes das APIs na documentação são respectivamente: Establishments (Estabelecimentos), Releases (Lançamentos) e Statements (Extratos). O idioma inglês foi escolhido para a construção dado que evita problemas com acentuação;</li>
             <li>O diagrama de classe da próxima seção foi elaborado no ínicio do projeto como base para a construção das APIs, mas não corresponde ao resultado final;</li>
             <li>Para organização das tarefas de trabalho foi utilizado o Pivotal Tracker;</li>
-            <li>Os exemplos das requisições realizadas estão na collection do Postman no diretório <a href="./tree/master/public">public</a> e também podem ser acessados no SwaggerUI;</li>
+            <li>Os exemplos das requisições realizadas estão na collection do Postman no diretório <a href="./public">public</a> e também podem ser acessados no SwaggerUI;</li>
             <li>O banco de dados utilizado foi o MongoDB através do Atlas;</li>
-            <li>O limite da conta utilizada no Atlas é de 80 conexões simultâneas, de forma que pode impactar os resultados do teste de stress;</li>
+            <li>O limite da conta utilizada no Atlas é de 80 conexões simultâneas, de forma que pode impactar os resultados do teste de estresse;</li>
             <li>As badges descrevem as ferramentas utilizadas para fluxo de integração contínua e entrega (CI e CD);</li>
             <li>A API está hospedada em um container Docker no Heroku e documentada com Swagger. <a href="https://extratos-api.herokuapp.com/swagger/index.html">Acesse aqui</a> ou clique na badge do Heroku do topo do README;</li>
             <li>A integração contínua está sendo realizada pelo TravisCI. Para mais detalhes do pipeline de build e testes clique na badge do TravisCI;</li>
